@@ -10,7 +10,6 @@ class Client(models.Model):
     last_name = models.CharField(max_length=30, verbose_name='Фамилия')
     patronym = models.CharField(max_length=30, **NULLABLE, verbose_name='Отчество')
     comment = models.TextField(verbose_name='Комментарий', **NULLABLE)
-    mailing_id = models.ManyToManyField('mailing.Mailing', verbose_name='Рассылка', related_name='clients')
 
     def __str__(self):
         return f'{self.last_name} {self.first_name} {self.patronym}'
@@ -39,6 +38,12 @@ class Mailing(models.Model):
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default='d', verbose_name='Периодичность')
     status = models.CharField(max_length=1, choices=STATUS, default=None, **NULLABLE, verbose_name='Статус')
 
+    # для возможности повторного использования сообщения
+    message = models.ForeignKey('mailing.MailingMessage', on_delete=models.PROTECT, verbose_name='Сообщение',
+                                   related_name='mailings')
+    # для возможности повторного использования клиентов
+    clients = models.ManyToManyField('mailing.Client', verbose_name='Клиенты', related_name='mailings')
+
     def __str__(self):
         return self.name
 
@@ -48,8 +53,6 @@ class Mailing(models.Model):
 
 
 class MailingMessage(models.Model):
-    mailing_id = models.OneToOneField('mailing.Mailing', on_delete=models.CASCADE,
-                                      verbose_name='Рассылка', related_name='message')
     subject = models.CharField(max_length=100, verbose_name='Тема письма')
     text = models.TextField(verbose_name='Тело письма')
 
