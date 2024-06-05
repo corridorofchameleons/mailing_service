@@ -5,10 +5,10 @@
 <form method="post">
     <div class="container ms-5 mt-5">
         {% csrf_token %}
-        <h2>Удалить сообщение "{{ mailingmessage.subject }}"?</h2>
+        <h2>Удалить клиента {{ client.last_name }} {{ client.first_name }}?</h2>
         <div class="col mt-5">
         <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-        <a href="{% url 'mailing:message_detail' message.pk %}" class="btn btn-primary btn-sm">Назад</a>
+        <a href="{% url 'mailing:client_detail' client.pk %}" class="btn btn-primary btn-sm">Назад</a>
         </div>
     </div>
 </form>

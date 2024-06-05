@@ -1,0 +1,21 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="container mt-5 ms-5">
+    <div class="card" style="width: 18rem;">
+        <div class="card-body" style="padding-bottom: 25px">
+            <h5 class="card-title" style="text-align: center">{{ client.last_name }} {{ client.first_name }}
+                {% if client.patronym %}{{ client.patronym }}{% endif %}</h5>
+            <p class="card-text" style="padding: 25px 25px 10px 10px">{{ client.email }}</p>
+            <p class="card-text" style="padding: 25px 25px 10px 10px">{{ client.comment }}</p>
+            <div style="text-align: center">
+                <a href="{% url 'mailing:client_update' client.pk %}"
+                   class="btn btn-warning btn-sm">Изменить</a>
+                <a href="{% url 'mailing:client_delete' client.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                <a href="{% url 'mailing:client_list' %}" class="btn btn-primary btn-sm">Назад</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="col-8">
+<div class="container ms-5 mt-5">
+    <h2>Мои клиенты</h2>
+</div>
+<div class="container ms-5 mt-5">
+    <table class="table" style="width: 100%">
+        <colgroup>
+            <col span="1" style="width: 30%;">
+            <col span="1" style="width: 30%;">
+            <col span="1" style="width: 10%;">
+            <col span="1" style="width: 20%;">
+        </colgroup>
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">ФИО</th>
+            <th scope="col">Комментарий</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for client in client_list %}
+        <tr>
+            <td>{{ client.email }}</td>
+            <td>{{ client.last_name }} {{ client.first_name }}
+                {% if client.patronym %}{{ client.patronym }}{% endif %}</td>
+            <td>{{ client.comment|truncatechars:50 }}</td>
+            <td><a class="btn btn-outline-secondary btn-sm" href="{% url 'mailing:client_detail' client.pk %}">Открыть</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'mailing:client_create' %}"><button class="btn btn-outline-primary btn-sm">Создать нового</button></a>
+</div>
+    </div>
+{% endblock %}

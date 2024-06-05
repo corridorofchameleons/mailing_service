@@ -1,0 +1,12 @@
+{% extends 'mailing/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post">
+    <div class="container ms-5 mt-5">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-light" type="submit">Сохранить</button>
+    </div>
+</form>
+{% endblock %}
