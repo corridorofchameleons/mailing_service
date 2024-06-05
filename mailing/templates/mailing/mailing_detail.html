@@ -1,0 +1,59 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="container mt-5 ms-5">
+    <div class="card" style="width: 800px;">
+        <div class="card-body" style="padding-bottom: 25px">
+            <h4 class="card-title ms-2">{{ mailing.name }}</h4>
+            <div class="mt-5">
+                {% if mailing.status != 'f' %}
+                <a href="#" class="btn btn-warning btn-sm">Изменить</a>
+                <a href="#" class="btn btn-danger btn-sm">Завершить</a>
+                {% else %}
+                <a href="#" class="btn btn-warning btn-sm">Запустить снова</a>
+                {% endif %}
+                <a href="{{ prev_url }}" class="btn btn-primary btn-sm">Назад</a>
+            </div>
+            <table class="table mt-4" style="width: 100%">
+                <tbody>
+                <tr>
+                    <td>Сообщение</td>
+                    <td><a href="{% url 'mailing:message_detail' mailing.message.pk %}">{{ mailing.message.subject }}</a></td>
+                </tr>
+                <tr>
+                    <td>Период рассылки</td>
+                    <td>{{ mailing.start_time|date:'d.m.y h:m' }} -
+                        {{ mailing.finish_time|date:'d.m.y h:m' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Частота отправки</td>
+                    <td>{{ mailing.get_frequency_display }}</td>
+                </tr>
+                <tr>
+                    <td>Статус</td>
+                    <td>{{ mailing.get_status_display }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <div class="container mt-5">
+                <h5>Получатели: </h5>
+                <table class="table mt-4" style="width: 100%">
+                    <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>{{ client.email }}</td>
+                        <td><a href="{% url 'mailing:client_detail' client.pk %}">{{ client.last_name }} {{ client.first_name }}
+                        {% if client.patronym %}{{ client.patronym }}{% endif %}</a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

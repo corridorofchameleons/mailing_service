@@ -3,7 +3,8 @@ from django.conf.urls.static import static
 from django.urls import path
 from mailing.apps import MailingConfig
 from mailing.views import index, MessageCreateView, MessageListView, MessageUpdateView, MessageDetailView, \
-    MessageDeleteView, ClientCreateView, ClientUpdateView, ClientDeleteView, ClientDetailView, ClientListView
+    MessageDeleteView, ClientCreateView, ClientUpdateView, ClientDeleteView, ClientDetailView, ClientListView, \
+    MailingListView, MailingDetailView
 
 app_name = MailingConfig.name
 
@@ -21,5 +22,8 @@ urlpatterns = [
     path('clients/delete/<int:pk>/', ClientDeleteView.as_view(), name='client_delete'),
     path('clients/<int:pk>', ClientDetailView.as_view(), name='client_detail'),
     path('clients/', ClientListView.as_view(), name='client_list'),
+
+    path('mailings/<int:pk>', MailingDetailView.as_view(), name='mailing_detail'),
+    path('mailings/', MailingListView.as_view(), name='mailing_list'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

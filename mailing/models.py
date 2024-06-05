@@ -36,7 +36,8 @@ class Mailing(models.Model):
     start_time = models.DateTimeField(default=timezone.now, verbose_name='Начало рассылки')
     finish_time = models.DateTimeField(verbose_name='Конец рассылки')
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default='d', verbose_name='Периодичность')
-    status = models.CharField(max_length=1, choices=STATUS, default=None, **NULLABLE, verbose_name='Статус')
+    status = models.CharField(max_length=1, choices=STATUS, default='c', verbose_name='Статус')
+    created_at = models.DateField(auto_now=True, verbose_name='Дата создания')
 
     # для возможности повторного использования сообщения
     message = models.ForeignKey('mailing.MailingMessage', on_delete=models.PROTECT, verbose_name='Сообщение',
@@ -50,6 +51,7 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
+        ordering = ['-created_at']
 
 
 class MailingMessage(models.Model):
@@ -63,6 +65,7 @@ class MailingMessage(models.Model):
     class Meta:
         verbose_name = 'Сообщение рассылки'
         verbose_name_plural = 'Сообщения рассылкок'
+        ordering = ['-created_at']
 
 
 class MailingAttempt(models.Model):

@@ -5,7 +5,7 @@ from mailing.models import Mailing, MailingAttempt, MailingMessage, Client
 
 @admin.register(Mailing)
 class MailingAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'start_time', 'finish_time', 'frequency', 'status', 'message', 'clients_list']
+    list_display = ['id', 'created_at', 'name', 'start_time', 'finish_time', 'frequency', 'status', 'message', 'clients_list']
     fields = ['name', 'start_time', 'finish_time', 'frequency', 'message', 'clients']
 
     def clients_list(self, obj):

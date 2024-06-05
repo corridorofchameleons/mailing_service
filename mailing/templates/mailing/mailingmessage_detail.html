@@ -2,17 +2,30 @@
 
 {% block content %}
 <div class="container mt-5 ms-5">
-    <div class="card" style="width: 18rem;">
+    <div class="card" style="width: 800px;">
         <div class="card-body" style="padding-bottom: 25px">
             <h5 class="card-title" style="text-align: center">{{ mailingmessage.subject }}</h5>
             <p class="card-text" style="padding: 25px 25px 10px 10px">{{ mailingmessage.text }}</p>
+            <div class="container mt-5">
+                <h5>Рассылки: </h5>
+                <table class="table mt-4" style="width: 100%">
+                    <tbody>
+                    {% for mailing in mailingmessage.mailings.all %}
+                    <tr>
+                        <td><a href="{% url 'mailing:mailing_detail' mailing.pk %}">{{ mailing.name }}</a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <div style="text-align: center">
                 <a href="{% url 'mailing:message_update' mailingmessage.pk %}"
                    class="btn btn-warning btn-sm">Изменить</a>
                 <a href="{% url 'mailing:message_delete' mailingmessage.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                <a href="{% url 'mailing:message_list' %}" class="btn btn-primary btn-sm">Назад</a>
+                <a href="{{ prev_url }}" class="btn btn-primary btn-sm">Назад</a>
             </div>
         </div>
+
     </div>
 </div>
 
