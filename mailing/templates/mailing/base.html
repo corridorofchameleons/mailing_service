@@ -1,7 +1,7 @@
 {% load static %}
 
 <!doctype html>
-<html lang="en" data-bs-theme="auto">
+<html lang="en" data-bs-theme="dark">
 <head>
     <script src="{% static 'js/color-modes.js' %}"></script>
 
@@ -18,8 +18,10 @@
 
     <style>
         body {
+            position: relative;
             width: 1200px;
             margin: auto;
+            padding-bottom: 100px;
         }
         .my-link {
             text-decoration: none;
@@ -27,6 +29,12 @@
         .my-link:hover {
             font-weight: bold;
             text-decoration: none;
+        }
+        footer {
+            position: absolute;
+            bottom: 0;
+            height: 100px;
+            width: 100%;
         }
 
         .bd-placeholder-img {
@@ -105,6 +113,7 @@
         .bd-mode-toggle .dropdown-menu .active .bi {
           display: block !important;
         }
+
     </style>
 
 
@@ -149,7 +158,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="nav-link text-white my-link">
+                <a href="{% url 'mailing:message_list' %}" class="nav-link text-white my-link">
                     Сообщения
                 </a>
             </li>
@@ -161,15 +170,25 @@
             <li>
 
         </ul>
-        <hr>
+
 
     </div>
 
     {% block content %}
     {% endblock %}
+
+
 </main>
+
+<footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+    <div class="col-md-4 d-flex align-items-center">
+
+        <span class="mb-3 mb-md-0 text-body-secondary">&copy; 2024 SpeedFreak aka CorridorOfChameleons</span>
+    </div>
+</footer>
+
 <script src="{% static 'js/bundle.min.js' %}"></script>
 
-<script src="{% static 'css/sidebars.js' %}"></script>
+<script src="{% static 'js/sidebars.js' %}"></script>
 </body>
 </html>

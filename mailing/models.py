@@ -55,6 +55,7 @@ class Mailing(models.Model):
 class MailingMessage(models.Model):
     subject = models.CharField(max_length=100, verbose_name='Тема письма')
     text = models.TextField(verbose_name='Тело письма')
+    created_at = models.DateField(auto_now=True, verbose_name='Дата создания')
 
     def __str__(self):
         return self.subject

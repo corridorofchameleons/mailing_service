@@ -17,7 +17,7 @@ class MailingAdmin(admin.ModelAdmin):
 
 @admin.register(MailingMessage)
 class MailingMessageAdmin(admin.ModelAdmin):
-    list_display = ['subject', 'text', 'mailing_list']
+    list_display = ['created_at', 'subject', 'text', 'mailing_list']
 
     def mailing_list(self, obj):
         result = []

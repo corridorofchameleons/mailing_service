@@ -1,0 +1,39 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="col-8">
+<div class="container ms-5 mt-5">
+    <h2>Мои сообщения</h2>
+</div>
+<div class="container ms-5 mt-5">
+    <table class="table" style="width: 100%">
+        <colgroup>
+            <col span="1" style="width: 20%;">
+            <col span="1" style="width: 20%;">
+            <col span="1" style="width: 40%;">
+            <col span="1" style="width: 20%;">
+        </colgroup>
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">Дата создания</th>
+            <th scope="col">Тема</th>
+            <th scope="col">Сообщение</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for message in mailingmessage_list %}
+        <tr>
+            <td>{{ message.created_at|date:'d.m.Y' }}</td>
+            <td>{{ message.subject }}</td>
+            <td>{{ message.text|truncatechars:50 }}</td>
+            <td><a class="btn btn-outline-secondary btn-sm" href="{% url 'mailing:message_detail' message.pk %}">Открыть</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'mailing:message_create' %}"><button class="btn btn-outline-primary btn-sm">Создать новое</button></a>
+</div>
+    </div>
+{% endblock %}
+
