@@ -1,0 +1,30 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">
+        <h2 class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <span class="fs-4">Мои рассылки</span>
+        </h2>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li>
+                <a href="{% url 'mailing:mailing_pre_create' %}" class="nav-link text-white my-link"
+                   style="font-size: 1.2em">
+                    Создать новую
+                </a>
+            </li>
+            <br>
+            <li>
+                <a href="{% url 'mailing:mailing_list' %}" class="nav-link text-white my-link">
+                    Текущие рассылки
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'mailing:client_list' %}" class="nav-link text-white my-link">
+                    Клиенты
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'mailing:message_list' %}" class="nav-link text-white my-link">
+                    Сообщения
+                </a>
+            </li>
+        </ul>
+    </div>

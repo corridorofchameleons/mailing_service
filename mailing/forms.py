@@ -1,20 +1,32 @@
-from django.forms import models
+from django import forms
+from django.utils import timezone
+
 from mailing.models import MailingMessage, Client, Mailing
 
 
-class MessageForm(models.ModelForm):
+class MessageForm(forms.ModelForm):
     class Meta:
         model = MailingMessage
         fields = '__all__'
 
 
-class ClientForm(models.ModelForm):
+class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = '__all__'
 
 
-class MailingForm(models.ModelForm):
+class MailingFormCreate(forms.ModelForm):
+    name = forms.CharField(label='Название рассылки')
+    start_time = forms.DateTimeField(label='Начало рассылки', initial=timezone.now)
+    finish_time = forms.DateTimeField(label='Конец рассылки')
+    clients = forms.ModelMultipleChoiceField(queryset=Client.objects.all())
+
     class Meta:
         model = Mailing
-        fields = '__all__'
+        fields = ('name', 'message', 'start_time', 'finish_time', 'frequency', 'clients')
+
+
+class MailingFormUpdate(MailingFormCreate):
+    start_time = forms.DateTimeField(disabled=True)
+

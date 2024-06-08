@@ -1,0 +1,31 @@
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+<!--                <li><a href="{% url 'mailing:index' %}" class="px-2 fs-3 text-white my-link">Главная</a></li>-->
+            </ul>
+
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get"
+                  action="{% url 'mailing:mailing_list' %}">
+                <div class="container">
+                    <div class="row">
+                        <div class="col col-8 pe-1">
+                            <input type="search" class="form-control form-control-dark text-bg-dark"
+                                   placeholder="Найти рассылку..." name="search"
+                                   aria-label="Search">
+                        </div>
+                        <div class="col ps-0">
+                            <button class="btn btn-secondary" type="submit">Поиск</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="text-end">
+                <button type="button" class="btn btn-outline-light me-2">Войти</button>
+                <button type="button" class="btn btn-warning">Регистрация</button>
+            </div>
+        </div>
+    </div>
+</header>

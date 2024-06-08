@@ -1,5 +1,7 @@
 {% extends 'mailing/base.html' %}
 
+{% block title %}SFMailing::{{title}}{% endblock %}
+
 {% block content %}
 <div class="container mt-5 ms-5">
     <div class="card" style="width: 800px;">
@@ -7,7 +9,7 @@
             <h4 class="card-title ms-2">{{ mailing.name }}</h4>
             <div class="mt-5">
                 {% if mailing.status != 'f' %}
-                <a href="#" class="btn btn-warning btn-sm">Изменить</a>
+                <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="btn btn-warning btn-sm">Изменить</a>
                 <a href="#" class="btn btn-danger btn-sm">Завершить</a>
                 {% else %}
                 <a href="#" class="btn btn-warning btn-sm">Запустить снова</a>
@@ -42,7 +44,7 @@
                 <h5>Получатели: </h5>
                 <table class="table mt-4" style="width: 100%">
                     <tbody>
-                    {% for client in clients %}
+                    {% for client in mailing.clients.all %}
                     <tr>
                         <td>{{ client.email }}</td>
                         <td><a href="{% url 'mailing:client_detail' client.pk %}">{{ client.last_name }} {{ client.first_name }}

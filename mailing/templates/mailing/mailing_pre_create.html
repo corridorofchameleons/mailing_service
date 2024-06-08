@@ -1,0 +1,14 @@
+{% extends 'mailing/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}SFMailing::{{title}}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 ms-5">
+    <p>1. Создайте сообщение для рассылки <a href="{% url 'mailing:message_create' %}">здесь</a><br>
+    Данные можно будет изменить</p>
+    <p>2. Создайте клиентов для рассылки <a href="{% url 'mailing:client_create' %}">здесь</a><br>
+    Данные можно будет изменить</p>
+    <p>3. Если все готово, можно приступать к созданию <a href="{% url 'mailing:mailing_create' %}">новой рассылки</a></p>
+</div>
+{% endblock %}

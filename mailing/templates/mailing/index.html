@@ -1,5 +1,11 @@
 {% extends 'mailing/base.html' %}
 
+{% block title %}SFMailing::{{title}}{% endblock %}
+
 {% block content %}
-Home page
+<div class="container ms-5 mt-5">
+    <p>Добро пожаловать на ручной генератор спама!</p>
+    <p>Для работы с сервисом необходимо <a href="#">зарегистрироваться</a>.</p>
+    <p>Уже зарегистрированы? <a href="#">Войти</a>.</p>
+</div>
 {% endblock %}
