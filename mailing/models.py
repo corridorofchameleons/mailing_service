@@ -71,14 +71,14 @@ class MailingMessage(models.Model):
 class MailingAttempt(models.Model):
     mailing_id = models.OneToOneField('mailing.Mailing', on_delete=models.CASCADE,
                                         verbose_name='Рассылка', related_name='attempt')
-    latest_attempt = models.DateTimeField(default=timezone.now)
-    status = models.BooleanField(default=False)
-    response = models.TextField(**NULLABLE)
+    latest_attempt = models.DateTimeField(default=None, **NULLABLE, verbose_name='Последняя попытка')
+    status = models.BooleanField(default=False, verbose_name='Результат')
+    response = models.TextField(**NULLABLE, verbose_name='Сообщение')
 
     def __str__(self):
         return f'{self.latest_attempt} {self.status}'
 
     class Meta:
-        ordering = ['latest_attempt']
+        ordering = ['-latest_attempt']
         verbose_name = 'Попытка рассылки'
         verbose_name_plural = 'Попытки рассылки'

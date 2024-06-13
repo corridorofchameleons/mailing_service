@@ -23,7 +23,7 @@ class TaskManager:
         return f'{TaskManager.__dir}/scripts/{pk}_script.py'
 
     @staticmethod
-    def __create_script(pk, start, end, status, subject, text, receivers):
+    def __create_script(pk, start, end, subject, text, receivers):
         '''
         Создает текст скрипта
         '''
@@ -37,30 +37,23 @@ from mailing.utils.mail_send import mail_send
 
 start = datetime.fromisoformat('{start}')
 end = datetime.fromisoformat('{end}')
-status = '{status}'
+pk = {pk}
 
 subject = '{subject}'
 message = \'\'\'{text}\'\'\'
 recievers = {receivers}
 
-if start.day <= datetime.now(timezone.utc).day <= end.day and status != 'f':
+if start.day <= datetime.now(timezone.utc).day <= end.day:
 
     mail_send(subject, message, recievers)
-
+    
 '''
 
         with open(TaskManager.__set_filename(pk), 'w') as f:
             f.write(text)
 
     @staticmethod
-    def create_task(pk, subject, text, receivers, start, end, freq, status):
-        '''
-        Записывает новую задачу в crontab
-        '''
-
-        # создание текста скрипта
-        TaskManager.__create_script(pk, start, end, status, subject, text, receivers)
-
+    def __set_cron(pk, start, freq):
         # создание команды cron
         interpreter = sys.executable
         script = TaskManager.__set_filename(pk)
@@ -84,3 +77,30 @@ if start.day <= datetime.now(timezone.utc).day <= end.day and status != 'f':
                     job.dow.on(weekday)
                 case 'm':
                     job.day.on(day)
+
+    @staticmethod
+    def create_task(pk, subject, text, receivers, start, end, freq):
+        '''
+        Создает скрипт рассылки
+        Записывает задачу в crontab
+        '''
+
+        # создание текста скрипта
+        TaskManager.__create_script(pk, start, end, subject, text, receivers)
+        # добавление задачи в crontab
+        TaskManager.__set_cron(pk, start, freq)
+
+    @staticmethod
+    def update_task(pk, subject, text, receivers, start, end):
+        '''
+        Изменяет скрипт рассылки
+        '''
+        TaskManager.__create_script(pk, start, end, subject, text, receivers)
+
+    @staticmethod
+    def delete_task(pk):
+        '''
+        Стирает скрипт рассылки
+        '''
+        with open(TaskManager.__set_filename(pk), 'w') as f:
+            f.write('')

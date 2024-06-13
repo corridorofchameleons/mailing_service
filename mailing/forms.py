@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin.widgets import AdminDateWidget
 from django.utils import timezone
 
 from mailing.models import MailingMessage, Client, Mailing
@@ -19,8 +20,15 @@ class ClientForm(forms.ModelForm):
 class MailingFormCreate(forms.ModelForm):
     name = forms.CharField(label='Название рассылки')
     start_time = forms.DateTimeField(label='Начало рассылки', initial=timezone.now)
-    finish_time = forms.DateTimeField(label='Конец рассылки')
-    clients = forms.ModelMultipleChoiceField(queryset=Client.objects.all())
+    finish_time = forms.DateField(label='Конец рассылки')
+    clients = forms.ModelMultipleChoiceField(queryset=Client.objects.all(),
+                                             label='Клиенты',
+                                             widget=forms.widgets.CheckboxSelectMultiple(
+                                                 attrs={'size': 8})
+                                             )
+    frequency = forms.ChoiceField(label='Периодичность',
+                                  widget=forms.RadioSelect,
+                                  choices=Mailing.FREQUENCY)
 
     class Meta:
         model = Mailing
@@ -28,5 +36,9 @@ class MailingFormCreate(forms.ModelForm):
 
 
 class MailingFormUpdate(MailingFormCreate):
-    start_time = forms.DateTimeField(disabled=True)
-
+    start_time = forms.DateTimeField(disabled=True, label='Начало рассылки')
+    frequency = forms.ChoiceField(disabled=True,
+                                  label='Периодичность',
+                                  widget=forms.RadioSelect,
+                                  choices=Mailing.FREQUENCY,
+                                  help_text='Для изменения периодичности необходимо создать новую рассылку')

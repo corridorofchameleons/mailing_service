@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView, TemplateView
 
@@ -46,6 +46,19 @@ class MessageUpdateView(UpdateView):
     model = MailingMessage
     form_class = MessageForm
     extra_context = {'title': 'Изменение сообщения'}
+
+    def form_valid(self, form):
+        message = form.save()
+        for mailing in message.mailings.all():
+            TaskManager.update_task(pk=mailing.pk,
+                                    subject=mailing.message.subject,
+                                    text=mailing.message.text,
+                                    receivers=[client.email for client in mailing.clients.all()],
+                                    start=mailing.start_time,
+                                    end=mailing.finish_time,
+                                    )
+
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('mailing:message_detail', kwargs={'pk': self.object.pk})
@@ -155,7 +168,6 @@ class MailingCreateView(CreateView):
                                 start=mailing.start_time,
                                 end=mailing.finish_time,
                                 freq=mailing.frequency,
-                                status=mailing.status
                                 )
 
         return super().form_valid(form)
@@ -169,6 +181,37 @@ class MailingUpdateView(UpdateView):
         mailing = form.save()
         mailing.save()
 
+        TaskManager.update_task(pk=mailing.pk,
+                                subject=mailing.message.subject,
+                                text=mailing.message.text,
+                                receivers=[client.email for client in mailing.clients.all()],
+                                start=mailing.start_time,
+                                end=mailing.finish_time,
+                                )
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('mailing:mailing_detail', kwargs={'pk': self.object.pk})
+
+
+def stop_mailing(request, pk):
+    if request.method == 'POST':
+        mailing = Mailing.objects.get(pk=pk)
+        mailing.status = 'f'
+        mailing.save()
+
+        TaskManager.delete_task(pk)
+
+    return redirect(reverse('mailing:mailing_list'))
+
+
+def restore_mailing(request, pk):
+    if request.method == 'POST':
+        mailing = Mailing.objects.get(pk=pk)
+        mailing.status = 's'
+        mailing.save()
+
         TaskManager.create_task(pk=mailing.pk,
                                 subject=mailing.message.subject,
                                 text=mailing.message.text,
@@ -179,12 +222,5 @@ class MailingUpdateView(UpdateView):
                                 status=mailing.status
                                 )
 
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('mailing:mailing_detail', kwargs={'pk': self.object.pk})
-
-
-def stop_mailing(request, pk):
-    print(pk)
+    return redirect(reverse('mailing:mailing_list'))
 
