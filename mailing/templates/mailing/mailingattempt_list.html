@@ -1,0 +1,40 @@
+{% extends 'mailing/base.html' %}
+
+{% block title %}SFMailing::{{title}}{% endblock %}
+
+{% block content %}
+<div class="col-8">
+<div class="container ms-5 mt-5">
+    <h2>Мои клиенты</h2>
+</div>
+<div class="container mt-5">
+    <table class="table" style="width: 100%">
+        <colgroup>
+            <col span="1" style="width: 30%;">
+            <col span="1" style="width: 30%;">
+            <col span="1" style="width: 40%;">
+        </colgroup>
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">Название рассылки</th>
+            <th scope="col">Последняя отправка</th>
+            <th scope="col">Результат</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ma in mailingattempt_list %}
+        <tr>
+            <td>{{ ma.mailing.name }}</td>
+            <td>{{ ma.latest_attempt }}</td>
+            {% if ma.status %}
+            <td class="table-success">{{ ma.response }}</td>
+            {% else %}
+            <td class="table-warning">{{ ma.response }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    </div>
+{% endblock %}

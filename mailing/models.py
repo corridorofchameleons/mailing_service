@@ -41,7 +41,7 @@ class Mailing(models.Model):
 
     # для возможности повторного использования сообщения
     message = models.ForeignKey('mailing.MailingMessage', on_delete=models.PROTECT, verbose_name='Сообщение',
-                                   related_name='mailings')
+                                related_name='mailings')
     # для возможности повторного использования клиентов
     clients = models.ManyToManyField('mailing.Client', verbose_name='Клиенты', related_name='mailings')
 
@@ -69,8 +69,8 @@ class MailingMessage(models.Model):
 
 
 class MailingAttempt(models.Model):
-    mailing_id = models.OneToOneField('mailing.Mailing', on_delete=models.CASCADE,
-                                        verbose_name='Рассылка', related_name='attempt')
+    mailing = models.ForeignKey('mailing.Mailing', on_delete=models.CASCADE,
+                                      verbose_name='Рассылка', related_name='attempts')
     latest_attempt = models.DateTimeField(default=None, **NULLABLE, verbose_name='Последняя попытка')
     status = models.BooleanField(default=False, verbose_name='Результат')
     response = models.TextField(**NULLABLE, verbose_name='Сообщение')

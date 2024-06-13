@@ -1,7 +1,6 @@
 import os
 import pathlib
 import sys
-from datetime import datetime
 from crontab import CronTab
 from dotenv import load_dotenv
 
@@ -23,30 +22,77 @@ class TaskManager:
         return f'{TaskManager.__dir}/scripts/{pk}_script.py'
 
     @staticmethod
-    def __create_script(pk, start, end, subject, text, receivers):
+    def __create_script(pk):
         '''
         Создает текст скрипта
         '''
         text = f'''
+import os
+import smtplib
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 
 sys.path.append('/home/speedfreak/PycharmProjects/Mailing')
 
-from mailing.utils.mail_send import mail_send
+import django
+from dotenv import load_dotenv
 
-start = datetime.fromisoformat('{start}')
-end = datetime.fromisoformat('{end}')
-pk = {pk}
+load_dotenv()
+django.setup()
 
-subject = '{subject}'
-message = \'\'\'{text}\'\'\'
-recievers = {receivers}
+from django.core.mail import send_mail
+from mailing.models import Mailing, MailingAttempt
 
-if start.day <= datetime.now(timezone.utc).day <= end.day:
 
-    mail_send(subject, message, recievers)
-    
+def main():
+    mailing = Mailing.objects.select_related('message').prefetch_related('clients').get(pk={pk})
+    emails = [client.email for client in mailing.clients.all()]
+
+    start = mailing.start_time
+    end = mailing.finish_time
+
+    status = mailing.status
+
+    if start.date() <= datetime.now().date() <= end and status != 'f':
+
+        mailing.status = 's'
+        mailing.save()
+
+        attempt = MailingAttempt(mailing=mailing)
+
+        try:
+            send_mail(
+                subject=mailing.message.subject,
+                message=mailing.message.text,
+                from_email=os.getenv('SMTP_USER'),
+                recipient_list=emails,
+                fail_silently=False
+            )
+            attempt.latest_attempt = datetime.now()
+            attempt.status = True
+            attempt.response = 'Рассылка выполнена успешно'
+        except smtplib.SMTPRecipientsRefused as err:
+            attempt.status = False
+            attempt.response = f'Все адреса некорректны: {{err}}'
+        except smtplib.SMTPAuthenticationError:
+            attempt.status = False
+            attempt.response = 'Ошибка аутентификации. Обратитесь к админу'
+        # а так же разные иные исключения
+        #
+        except smtplib.SMTPException:
+            attempt = False
+            attempt.message = 'Ошибка системы'
+        finally:
+            attempt.save()
+
+    elif datetime.now().date() > end:
+
+        mailing.status = 'f'
+        mailing.save()
+
+
+if __name__ == '__main__':
+    main()
 '''
 
         with open(TaskManager.__set_filename(pk), 'w') as f:
@@ -54,7 +100,9 @@ if start.day <= datetime.now(timezone.utc).day <= end.day:
 
     @staticmethod
     def __set_cron(pk, start, freq):
-        # создание команды cron
+        '''
+        Создает команду cron
+        '''
         interpreter = sys.executable
         script = TaskManager.__set_filename(pk)
         cron_command = ' '.join([interpreter, script])
@@ -79,28 +127,13 @@ if start.day <= datetime.now(timezone.utc).day <= end.day:
                     job.day.on(day)
 
     @staticmethod
-    def create_task(pk, subject, text, receivers, start, end, freq):
+    def create_task(pk, start, freq):
         '''
         Создает скрипт рассылки
         Записывает задачу в crontab
         '''
 
         # создание текста скрипта
-        TaskManager.__create_script(pk, start, end, subject, text, receivers)
+        TaskManager.__create_script(pk)
         # добавление задачи в crontab
         TaskManager.__set_cron(pk, start, freq)
-
-    @staticmethod
-    def update_task(pk, subject, text, receivers, start, end):
-        '''
-        Изменяет скрипт рассылки
-        '''
-        TaskManager.__create_script(pk, start, end, subject, text, receivers)
-
-    @staticmethod
-    def delete_task(pk):
-        '''
-        Стирает скрипт рассылки
-        '''
-        with open(TaskManager.__set_filename(pk), 'w') as f:
-            f.write('')
