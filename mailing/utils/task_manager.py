@@ -122,7 +122,7 @@ if __name__ == '__main__':
                 case 'd':
                     job.day.every(1)
                 case 'w':
-                    job.dow.on(weekday)
+                    job.dow.on(weekday + 1)
                 case 'm':
                     job.day.on(day)
 
