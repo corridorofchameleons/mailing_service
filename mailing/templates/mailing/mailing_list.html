@@ -16,7 +16,7 @@
                 <th scope="col">Название</th>
                 <th scope="col">Статус</th>
                 <th scope="col">Время начала</th>
-                <th scope="col">Время окончания</th>
+                <th scope="col">Последний день</th>
                 <th scope="col">Клиенты</th>
                 <th scope="col">Частота отправки</th>
                 <th></th>
@@ -28,8 +28,8 @@
                 <td>{{ mailing.created_at|date:'d.m.Y' }}</td>
                 <td>{{ mailing.name }}</td>
                 <td>{{ mailing.get_status_display }}</td>
-                <td>{{ mailing.start_time|date:'d.m.y h:m' }}</td>
-                <td>{{ mailing.finish_time|date:'d.m.y h:m' }}</td>
+                <td>{{ mailing.start_time|date:'d.m.y H:i' }}</td>
+                <td>{{ mailing.finish_time|date:'d.m.y' }}</td>
                 <td>{{ mailing.clients.count }}</td>
                 <td>{{ mailing.get_frequency_display }}</td>
                 <td><a class="btn btn-outline-secondary btn-sm" href="{% url 'mailing:mailing_detail' mailing.pk %}">Открыть</a>

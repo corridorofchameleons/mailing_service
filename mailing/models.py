@@ -34,7 +34,7 @@ class Mailing(models.Model):
 
     name = models.CharField(max_length=100, verbose_name='Наименование')
     start_time = models.DateTimeField(default=timezone.now, verbose_name='Начало рассылки')
-    finish_time = models.DateTimeField(verbose_name='Конец рассылки')
+    finish_time = models.DateField(verbose_name='Последний день')
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default='d', verbose_name='Периодичность')
     status = models.CharField(max_length=1, choices=STATUS, default='c', verbose_name='Статус')
     created_at = models.DateField(auto_now=True, verbose_name='Дата создания')
@@ -51,7 +51,7 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
-        ordering = ['-created_at']
+        ordering = ['-created_at', '-start_time']
 
 
 class MailingMessage(models.Model):

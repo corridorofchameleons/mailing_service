@@ -4,8 +4,7 @@ from django.views.generic import CreateView, ListView, UpdateView, DetailView, D
 
 from mailing.forms import MessageForm, ClientForm, MailingFormCreate, MailingFormUpdate
 from mailing.models import MailingMessage, Client, Mailing
-
-from django.db import connection
+from mailing.utils.task_manager import TaskManager
 
 
 def index(request):
@@ -145,10 +144,47 @@ class MailingCreateView(CreateView):
 
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def form_valid(self, form):
+        mailing = form.save()
+        mailing.save()
+
+        TaskManager.create_task(pk=mailing.pk,
+                                subject=mailing.message.subject,
+                                text=mailing.message.text,
+                                receivers=[client.email for client in mailing.clients.all()],
+                                start=mailing.start_time,
+                                end=mailing.finish_time,
+                                freq=mailing.frequency,
+                                status=mailing.status
+                                )
+
+        return super().form_valid(form)
+
 
 class MailingUpdateView(UpdateView):
     model = Mailing
     form_class = MailingFormUpdate
 
+    def form_valid(self, form):
+        mailing = form.save()
+        mailing.save()
+
+        TaskManager.create_task(pk=mailing.pk,
+                                subject=mailing.message.subject,
+                                text=mailing.message.text,
+                                receivers=[client.email for client in mailing.clients.all()],
+                                start=mailing.start_time,
+                                end=mailing.finish_time,
+                                freq=mailing.frequency,
+                                status=mailing.status
+                                )
+
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse('mailing:mailing_detail', kwargs={'pk': self.object.pk})
+
+
+def stop_mailing(request, pk):
+    print(pk)
+
