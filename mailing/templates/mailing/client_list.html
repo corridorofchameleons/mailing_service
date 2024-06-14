@@ -7,7 +7,9 @@
 <div class="container ms-5 mt-5">
     <h2>Мои клиенты</h2>
 </div>
-<div class="container mt-5">
+
+<div class="container mt-5 ms-5">
+    {% if client_list %}
     <table class="table" style="width: 100%">
         <colgroup>
             <col span="1" style="width: 30%;">
@@ -36,6 +38,32 @@
         </tbody>
     </table>
     <a href="{% url 'mailing:client_create' %}"><button class="btn btn-outline-primary btn-sm">Создать нового</button></a>
+    {% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center mt-3">
+        {% if page_obj.has_previous %}
+        <a class="page-link" href="{% url 'mailing:client_list' %}?page={{ page_obj.previous_page_number }}"
+           aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+        {% for page in page_obj.paginator.page_range %}
+        <li class="page-item"><a class="page-link" href="{% url 'mailing:client_list' %}?page={{ page }}">{{ page }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a class="page-link" href="{% url 'mailing:client_list' %}?page={{ page_obj.next_page_number }}"
+           aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+    {% else %}
+    <p>Вы еще не создали клиентов</p>
+    <a href="{% url 'mailing:client_create' %}">Давайте это сделаем</a>
+    {% endif %}
 </div>
-    </div>
+</div>
 {% endblock %}

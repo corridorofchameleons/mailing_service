@@ -19,13 +19,17 @@ class ClientForm(forms.ModelForm):
 
 class MailingFormCreate(forms.ModelForm):
     name = forms.CharField(label='Название рассылки')
-    start_time = forms.DateTimeField(label='Начало рассылки', initial=timezone.now)
-    finish_time = forms.DateField(label='Конец рассылки')
+    start_time = forms.SplitDateTimeField(label='Начало рассылки', initial=timezone.now,
+                                          widget=forms.SplitDateTimeWidget(date_format="%d/%m/%Y",
+                                                                           date_attrs={"type": "date"}))
+    finish_time = forms.DateField(label='Конец рассылки',
+                                  widget=forms.DateInput(format="%d/%m/%Y", attrs={"type": "date"}),
+                                  help_text='Рассылка будет осуществляться в заданное время до \
+                                    последнего дня включительно')
     clients = forms.ModelMultipleChoiceField(queryset=Client.objects.all(),
                                              label='Клиенты',
                                              widget=forms.widgets.CheckboxSelectMultiple(
-                                                 attrs={'size': 8})
-                                             )
+                                                 attrs={'size': 5}))
     frequency = forms.ChoiceField(label='Периодичность',
                                   widget=forms.RadioSelect,
                                   choices=Mailing.FREQUENCY)

@@ -6,7 +6,7 @@
 <div class="container mt-5 ms-5">
     <div class="card" style="width: 800px;">
         <div class="card-body" style="padding-bottom: 25px">
-            <h4 class="card-title ms-2">{{ mailing.name }}</h4>
+            <h3 class="card-title ms-2">{{ mailing.name }}</h3>
             <div class="row mt-5 ms-2">
                 <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="col-2 btn btn-warning btn-sm">Изменить</a>
                 {% if mailing.status != 'f' %}
@@ -26,7 +26,7 @@
                 <tbody>
                 <tr>
                     <td>Сообщение</td>
-                    <td><a href="{% url 'mailing:message_detail' mailing.message.pk %}">{{ mailing.message.subject }}</a></td>
+                    <td><a href="{% url 'mailing:message_detail' mailing.message.pk %}" style="font-size: 1.2em">{{ mailing.message.subject }}</a></td>
                 </tr>
                 <tr>
                     <td>Период рассылки</td>
@@ -40,7 +40,7 @@
                 </tr>
                 <tr>
                     <td>Статус</td>
-                    <td>{{ mailing.get_status_display }}</td>
+                    <td>{{ mailing.get_status_display }} / <a href="{% url 'mailing:attempt_list' %}?mailing={{ mailing.pk }}">Посмотреть отчеты</a></td>
                 </tr>
                 </tbody>
             </table>

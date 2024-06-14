@@ -20,11 +20,11 @@
                 </tr>
                 </tbody>
             </table>
-            <div style="text-align: center">
+            <div class="container">
                 <a href="{% url 'mailing:client_update' client.pk %}"
-                   class="btn btn-warning btn-sm">Изменить</a>
-                <a href="{% url 'mailing:client_delete' client.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                <a href="{{ prev_url }}" class="btn btn-primary btn-sm">Назад</a>
+                   class="col-2 btn btn-warning btn-sm">Изменить</a>
+                <a href="{% url 'mailing:client_delete' client.pk %}" class="col-2 btn btn-danger btn-sm">Удалить</a>
+                <a href="{{ prev_url }}" class="col-2 btn btn-primary btn-sm">Назад</a>
             </div>
         </div>
     </div>

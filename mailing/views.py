@@ -1,3 +1,6 @@
+from datetime import datetime, timezone, timedelta
+
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView, TemplateView
@@ -14,6 +17,7 @@ def index(request):
 class MessageListView(ListView):
     model = MailingMessage
     extra_context = {'title': 'Сообщения'}
+    paginate_by = 10
 
 
 class MessageDetailView(DetailView):
@@ -60,6 +64,7 @@ class MessageDeleteView(DeleteView):
 class ClientListView(ListView):
     model = Client
     extra_context = {'title': 'Клиенты'}
+    paginate_by = 10
 
 
 class ClientDetailView(DetailView):
@@ -100,6 +105,7 @@ class ClientDeleteView(DeleteView):
 
 class MailingListView(ListView):
     model = Mailing
+    paginate_by = 10
 
     def get_queryset(self):
         search = self.request.GET.get('search', '')
@@ -154,6 +160,12 @@ class MailingCreateView(CreateView):
             freq=mailing.frequency,
         )
 
+        #  если текущие дата и время больше даты и времени начала
+        #  и меньше даты и времени окончания, отправляется внепланово
+        if mailing.start_time < datetime.now(timezone(timedelta(hours=3))) and \
+                datetime.now(timezone(timedelta(hours=3))).date() <= mailing.finish_time:
+            TaskManager.force_exec(mailing.pk)
+
         return super().form_valid(form)
 
 
@@ -191,3 +203,12 @@ def restore_mailing(request, pk):
 
 class LogListView(ListView):
     model = MailingAttempt
+    paginate_by = 10
+
+    def get_queryset(self):
+        mailing_pk = self.request.GET.get('mailing')
+        if mailing_pk:
+            qs = MailingAttempt.objects.filter(mailing=mailing_pk)
+        else:
+            qs = MailingAttempt.objects.all()
+        return qs

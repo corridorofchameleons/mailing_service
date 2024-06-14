@@ -8,8 +8,15 @@
         <div class="card-body" style="padding-bottom: 25px">
             <h5 class="card-title" style="text-align: center">{{ mailingmessage.subject }}</h5>
             <p class="card-text" style="padding: 25px 25px 10px 10px">{{ mailingmessage.text }}</p>
+            <div class="container">
+                <a href="{% url 'mailing:message_update' mailingmessage.pk %}"
+                   class="col-2 btn btn-warning btn-sm">Изменить</a>
+                <a href="{% url 'mailing:message_delete' mailingmessage.pk %}" class="col-2 btn btn-danger btn-sm">Удалить</a>
+                <a href="{{ prev_url }}" class="col-2 btn btn-primary btn-sm">Назад</a>
+            </div>
             <div class="container mt-5">
                 <h5>Рассылки: </h5>
+                {% if mailingmessage.mailings.count %}
                 <table class="table mt-4" style="width: 100%">
                     <tbody>
                     {% for mailing in mailingmessage.mailings.all %}
@@ -19,15 +26,11 @@
                     {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div style="text-align: center">
-                <a href="{% url 'mailing:message_update' mailingmessage.pk %}"
-                   class="btn btn-warning btn-sm">Изменить</a>
-                <a href="{% url 'mailing:message_delete' mailingmessage.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                <a href="{{ prev_url }}" class="btn btn-primary btn-sm">Назад</a>
+                {% else %}
+                <p>Это сообщение пока не участвует в рассылках</p>
+                {% endif %}
             </div>
         </div>
-
     </div>
 </div>
 

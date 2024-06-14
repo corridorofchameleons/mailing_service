@@ -12,7 +12,8 @@ class Client(models.Model):
     comment = models.TextField(verbose_name='Комментарий', **NULLABLE)
 
     def __str__(self):
-        return f'{self.last_name} {self.first_name} {self.patronym}'
+        return f'{self.last_name} {self.first_name} {self.patronym}' \
+            if self.patronym else f'{self.last_name} {self.first_name}'
 
     class Meta:
         verbose_name = 'Клиент'
@@ -70,7 +71,7 @@ class MailingMessage(models.Model):
 
 class MailingAttempt(models.Model):
     mailing = models.ForeignKey('mailing.Mailing', on_delete=models.CASCADE,
-                                      verbose_name='Рассылка', related_name='attempts')
+                                verbose_name='Рассылка', related_name='attempts')
     latest_attempt = models.DateTimeField(default=None, **NULLABLE, verbose_name='Последняя попытка')
     status = models.BooleanField(default=False, verbose_name='Результат')
     response = models.TextField(**NULLABLE, verbose_name='Сообщение')

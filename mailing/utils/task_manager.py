@@ -1,10 +1,15 @@
+
 import os
 import pathlib
 import sys
 from crontab import CronTab
-from dotenv import load_dotenv
 
-load_dotenv()
+sys.path.append('/home/speedfreak/PycharmProjects/Mailing')
+
+# Эти импорты удалять нельзя
+from django.core.mail import send_mail
+from mailing.models import Mailing, MailingAttempt
+from datetime import datetime, timezone, timedelta
 
 
 class TaskManager:
@@ -30,7 +35,7 @@ class TaskManager:
 import os
 import smtplib
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 sys.path.append('/home/speedfreak/PycharmProjects/Mailing')
 
@@ -43,8 +48,8 @@ django.setup()
 from django.core.mail import send_mail
 from mailing.models import Mailing, MailingAttempt
 
-
 def main():
+        
     mailing = Mailing.objects.select_related('message').prefetch_related('clients').get(pk={pk})
     emails = [client.email for client in mailing.clients.all()]
 
@@ -68,7 +73,7 @@ def main():
                 recipient_list=emails,
                 fail_silently=False
             )
-            attempt.latest_attempt = datetime.now()
+            attempt.latest_attempt = datetime.now(timezone(timedelta(hours=3)))
             attempt.status = True
             attempt.response = 'Рассылка выполнена успешно'
         except smtplib.SMTPRecipientsRefused as err:
@@ -78,9 +83,9 @@ def main():
             attempt.status = False
             attempt.response = 'Ошибка аутентификации. Обратитесь к админу'
         # а так же разные иные исключения
-        #
+        
         except smtplib.SMTPException:
-            attempt = False
+            attempt.status = False
             attempt.message = 'Ошибка системы'
         finally:
             attempt.save()
@@ -90,9 +95,7 @@ def main():
         mailing.status = 'f'
         mailing.save()
 
-
-if __name__ == '__main__':
-    main()
+main()
 '''
 
         with open(TaskManager.__set_filename(pk), 'w') as f:
@@ -137,3 +140,14 @@ if __name__ == '__main__':
         TaskManager.__create_script(pk)
         # добавление задачи в crontab
         TaskManager.__set_cron(pk, start, freq)
+
+    @staticmethod
+    def force_exec(pk):
+        '''
+        Производит рассылку принудительно
+        '''
+        file = TaskManager.__set_filename(pk)
+
+        with open(file, 'r') as f:
+            text = f.read()
+        exec(text)
