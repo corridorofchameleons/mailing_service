@@ -50,7 +50,7 @@
                 <h5>Получатели: </h5>
                 <table class="table mt-4" style="width: 100%">
                     <tbody>
-                    {% for client in mailing.clients.all %}
+                    {% for client in clients %}
                     <tr>
                         <td>{{ client.email }}</td>
                         <td><a href="{% url 'mailing:client_detail' client.pk %}">{{ client.last_name }} {{ client.first_name }}
@@ -59,6 +59,28 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if page.has_other_pages %}
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center mt-3">
+                        {% if page.has_previous %}
+                        <a class="page-link" href="{% url 'mailing:mailing_detail' mailing.pk %}?page={{ page.previous_page_number }}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                        {% endif %}
+                        {% for page in page.paginator.page_range %}
+                        <li class="page-item"><a class="page-link" href="{% url 'mailing:mailing_detail' mailing.pk %}?page={{ page }}">{{ page }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if page.has_next %}
+                        <a class="page-link" href="{% url 'mailing:mailing_detail' mailing.pk %}?page={{ page.next_page_number }}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
     </div>

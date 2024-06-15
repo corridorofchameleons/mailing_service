@@ -119,24 +119,22 @@ class MailingListView(ListView):
         return context
 
 
-class MailingDetailView(DetailView):
-    model = Mailing
-    extra_context = {'title': 'Просмотр рассылки'}
+# для постраничного вывода связанных клиентов используется более гибкий вариант: функция
+def mailing_detail(request, pk):
 
-    pk_url_kwarg = 'pk'
-
-    def get_object(self, queryset=None):
-        obj = (Mailing.objects
-               .prefetch_related('clients')
+    mailing = (Mailing.objects
                .select_related('message')
-               .get(pk=self.kwargs.get('pk')))
-        return obj
+               .prefetch_related('clients')
+               .get(pk=pk))
+    paginator = Paginator(mailing.clients.all(), 5)
+    # если нет параметра в url, то выводим 1 страницу
+    page_num = request.GET.get('page', 1)
+    page = paginator.get_page(page_num)
+    context = {'title': 'Просмотр рассылки', 'mailing': mailing, 'page': page, 'clients': page.object_list}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        prev_url = self.request.META.get('HTTP_REFERER')
-        context['prev_url'] = prev_url
-        return context
+    prev_url = request.META.get('HTTP_REFERER')
+    context['prev_url'] = prev_url
+    return render(request, 'mailing/mailing_detail.html', context)
 
 
 class MailingPreCreateView(TemplateView):

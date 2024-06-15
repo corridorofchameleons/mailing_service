@@ -52,7 +52,7 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
-        ordering = ['-created_at', '-start_time']
+        ordering = ['-start_time']
 
 
 class MailingMessage(models.Model):
