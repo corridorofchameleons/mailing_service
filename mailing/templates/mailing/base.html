@@ -129,7 +129,9 @@
 
 <main class="d-flex flex-nowrap">
 
+{% if user.is_authenticated %}
 {% include 'mailing/includes/nav.html' %}
+{% endif %}
 
 {% block content %}
 {% endblock %}

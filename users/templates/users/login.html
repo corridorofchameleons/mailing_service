@@ -1,0 +1,14 @@
+{% extends 'users/base_users.html' %}
+{% load crispy_forms_tags %}
+{% block userscontent %}
+<form class="row justify-content-center" method="post" enctype="multipart/form-data">
+    <div class="card col-6 p-4">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <p>
+            <button class="btn btn-primary btn-sm mt-3" type="submit">Войти</button>
+        </p>
+        <a href="{% url 'users:password_reset' %}" class="mt-2">Забыли пароль?</a>
+    </div>
+</form>
+{% endblock %}

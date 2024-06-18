@@ -3,9 +3,9 @@
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-<!--                <li><a href="{% url 'mailing:index' %}" class="px-2 fs-3 text-white my-link">Главная</a></li>-->
+                <li><h1><a href="{% url 'mailing:index' %}" class="px-2 fs-3 text-white my-link">SF Mailing</a></h1></li>
             </ul>
-
+            {% if user.is_authenticated %}
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get"
                   action="{% url 'mailing:mailing_list' %}">
                 <div class="container">
@@ -21,11 +21,22 @@
                     </div>
                 </div>
             </form>
-
-            <div class="text-end">
-                <button type="button" class="btn btn-outline-light me-2">Войти</button>
-                <button type="button" class="btn btn-warning">Регистрация</button>
+            <div class="row text-end">
+                <div class="col"><span class="align-middle">{{ user.email }}</span></div>
+                <div class="col">
+                    <form method="post" action="{% url 'users:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="col btn btn-light">Выйти</button>
+                    </form>
+                </div>
             </div>
+
+            {% else %}
+            <div class="text-end">
+                <a href="{% url 'users:login' %}" class="btn btn-info me-2">Войти</a>
+                <a href="{% url 'users:user_create' %}" class="btn btn-outline-light">Регистрация</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </header>

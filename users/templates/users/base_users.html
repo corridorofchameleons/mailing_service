@@ -1,0 +1,12 @@
+{% extends 'mailing/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-10 mt-5 ms-5">
+            {% block userscontent %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

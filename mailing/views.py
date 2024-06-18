@@ -126,7 +126,7 @@ def mailing_detail(request, pk):
                .select_related('message')
                .prefetch_related('clients')
                .get(pk=pk))
-    paginator = Paginator(mailing.clients.all(), 5)
+    paginator = Paginator(mailing.clients.all().order_by('last_name'), 5)
     # если нет параметра в url, то выводим 1 страницу
     page_num = request.GET.get('page', 1)
     page = paginator.get_page(page_num)

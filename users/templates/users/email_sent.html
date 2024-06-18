@@ -1,0 +1,6 @@
+{% extends 'users/base_users.html' %}
+
+{% block userscontent %}
+<h3>На почту, указанную при регистрации, отправлено письмо с инструкцией по активации.</h3>
+<a href="{% url 'mailing:index' %}">На главную</a>
+{% endblock %}
