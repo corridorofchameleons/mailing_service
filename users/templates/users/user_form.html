@@ -1,5 +1,6 @@
 {% extends 'users/base_users.html' %}
 {% load crispy_forms_tags %}
+{% block title %}{{title}}{% endblock %}
 {% block userscontent %}
 <form class="row justify-content-center" method="post" enctype="multipart/form-data">
     <div class="card col-8 p-4">

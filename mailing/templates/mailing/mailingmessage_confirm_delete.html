@@ -1,7 +1,7 @@
 {% extends 'mailing/base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}SFMailing::{{title}}{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block content %}
 <form method="post">
@@ -9,8 +9,8 @@
         {% csrf_token %}
         <h2>Удалить сообщение "{{ mailingmessage.subject }}"?</h2>
         <div class="col mt-5">
-        <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-        <a href="{% url 'mailing:message_detail' message.pk %}" class="btn btn-primary btn-sm">Назад</a>
+            <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+            <a href="{% url 'mailing:message_detail' mailingmessage.pk %}" class="btn btn-primary btn-sm">Назад</a>
         </div>
     </div>
 </form>

@@ -5,11 +5,12 @@ NULLABLE = {'blank': True, 'null': True}
 
 
 class Client(models.Model):
-    email = models.EmailField(max_length=254, unique=True, verbose_name='Email')
+    email = models.EmailField(max_length=254, verbose_name='Email')
     first_name = models.CharField(max_length=30, verbose_name='Имя')
     last_name = models.CharField(max_length=30, verbose_name='Фамилия')
     patronym = models.CharField(max_length=30, **NULLABLE, verbose_name='Отчество')
     comment = models.TextField(verbose_name='Комментарий', **NULLABLE)
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, **NULLABLE, verbose_name='Пользователь')
 
     def __str__(self):
         return f'{self.last_name} {self.first_name} {self.patronym}' \
@@ -46,6 +47,8 @@ class Mailing(models.Model):
     # для возможности повторного использования клиентов
     clients = models.ManyToManyField('mailing.Client', verbose_name='Клиенты', related_name='mailings')
 
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, **NULLABLE, verbose_name='Пользователь')
+
     def __str__(self):
         return self.name
 
@@ -59,6 +62,7 @@ class MailingMessage(models.Model):
     subject = models.CharField(max_length=100, verbose_name='Тема письма')
     text = models.TextField(verbose_name='Тело письма')
     created_at = models.DateField(auto_now=True, verbose_name='Дата создания')
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, **NULLABLE, verbose_name='Пользователь')
 
     def __str__(self):
         return self.subject

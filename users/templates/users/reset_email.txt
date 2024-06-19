@@ -1,1 +1,4 @@
+Дорогой друг {{ user.email }}!
+
+Для сброса пароля перейди по ссылке:
 {{ protocol }}://{{ domain }}{% url 'users:password_reset_confirm' uidb64=uid token=token %}

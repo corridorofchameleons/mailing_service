@@ -90,7 +90,7 @@ def main():
         finally:
             attempt.save()
 
-    elif datetime.now().date() > end:
+    if datetime.now().date() >= end:
 
         mailing.status = 'f'
         mailing.save()

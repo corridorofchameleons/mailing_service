@@ -1,5 +1,8 @@
 from datetime import datetime, timezone, timedelta
 
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
@@ -14,15 +17,22 @@ def index(request):
     return render(request, 'mailing/index.html', {'title': 'Главная'})
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = MailingMessage
     extra_context = {'title': 'Сообщения'}
     paginate_by = 10
 
+    def get_queryset(self):
+        user = self.request.user
+        return MailingMessage.objects.filter(user=user)
 
-class MessageDetailView(DetailView):
+
+class MessageDetailView(UserPassesTestMixin, DetailView):
     model = MailingMessage
     self_url_kwarg = 'pk'
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
     def get_object(self, queryset=None):
         obj = (MailingMessage.objects
@@ -45,30 +55,49 @@ class MessageCreateView(CreateView):
     extra_context = {'title': 'Создание сообщения'}
     success_url = reverse_lazy('mailing:message_list')
 
+    def form_valid(self, form):
+        message = form.save()
+        message.user = self.request.user
+        message.save()
+        return super().form_valid(form)
 
-class MessageUpdateView(UpdateView):
+
+class MessageUpdateView(UserPassesTestMixin, UpdateView):
     model = MailingMessage
     form_class = MessageForm
     extra_context = {'title': 'Изменение сообщения'}
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
     def get_success_url(self):
         return reverse('mailing:message_detail', kwargs={'pk': self.object.pk})
 
 
-class MessageDeleteView(DeleteView):
+class MessageDeleteView(UserPassesTestMixin, DeleteView):
     model = MailingMessage
-
+    extra_context = {'title': 'Удаление сообщения'}
     success_url = reverse_lazy('mailing:message_list')
 
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
-class ClientListView(ListView):
+
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     extra_context = {'title': 'Клиенты'}
     paginate_by = 10
 
+    def get_queryset(self):
+        user = self.request.user
+        return Client.objects.filter(user=user)
 
-class ClientDetailView(DetailView):
+
+class ClientDetailView(UserPassesTestMixin, DetailView):
     model = Client
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -81,35 +110,48 @@ class ClientDetailView(DetailView):
         return context
 
 
-class ClientCreateView(CreateView):
+class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     extra_context = {'title': 'Создание клиента'}
     success_url = reverse_lazy('mailing:client_list')
 
+    def form_valid(self, form):
+        client = form.save()
+        client.user = self.request.user
+        client.save()
+        return super().form_valid(form)
 
-class ClientUpdateView(UpdateView):
+
+class ClientUpdateView(UserPassesTestMixin, UpdateView):
     model = Client
     form_class = ClientForm
     extra_context = {'title': 'Изменение клиента'}
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
     def get_success_url(self):
         return reverse('mailing:client_detail', kwargs={'pk': self.object.pk})
 
 
-class ClientDeleteView(DeleteView):
+class ClientDeleteView(UserPassesTestMixin, DeleteView):
     model = Client
-
+    extra_context = {'title': 'Удаление клиента'}
     success_url = reverse_lazy('mailing:client_list')
 
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
-class MailingListView(ListView):
+
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     paginate_by = 10
 
     def get_queryset(self):
         search = self.request.GET.get('search', '')
-        qs = Mailing.objects.filter(name__icontains=search)
+        user = self.request.user
+        qs = Mailing.objects.filter(name__icontains=search, user=user)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -121,35 +163,44 @@ class MailingListView(ListView):
 
 # для постраничного вывода связанных клиентов используется более гибкий вариант: функция
 def mailing_detail(request, pk):
+    user = Mailing.objects.get(pk=pk).user
+    if user == request.user:
+        mailing = (Mailing.objects
+                   .select_related('message')
+                   .prefetch_related('clients')
+                   .get(pk=pk))
+        paginator = Paginator(mailing.clients.all().order_by('last_name'), 5)
+        # если нет параметра в url, то выводим 1 страницу
+        page_num = request.GET.get('page', 1)
+        page = paginator.get_page(page_num)
+        context = {'title': 'Просмотр рассылки', 'mailing': mailing, 'page': page, 'clients': page.object_list}
 
-    mailing = (Mailing.objects
-               .select_related('message')
-               .prefetch_related('clients')
-               .get(pk=pk))
-    paginator = Paginator(mailing.clients.all().order_by('last_name'), 5)
-    # если нет параметра в url, то выводим 1 страницу
-    page_num = request.GET.get('page', 1)
-    page = paginator.get_page(page_num)
-    context = {'title': 'Просмотр рассылки', 'mailing': mailing, 'page': page, 'clients': page.object_list}
-
-    prev_url = request.META.get('HTTP_REFERER')
-    context['prev_url'] = prev_url
-    return render(request, 'mailing/mailing_detail.html', context)
+        prev_url = request.META.get('HTTP_REFERER')
+        context['prev_url'] = prev_url
+        return render(request, 'mailing/mailing_detail.html', context)
+    raise PermissionDenied()
 
 
-class MailingPreCreateView(TemplateView):
+class MailingPreCreateView(LoginRequiredMixin, TemplateView):
     template_name = 'mailing/mailing_pre_create.html'
+    extra_context = {'title': 'Создание рассылки'}
 
 
-class MailingCreateView(CreateView):
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingFormCreate
-    extra_context = {'message_form': MessageForm}
+    extra_context = {'message_form': MessageForm, 'title': 'Создание рассылки'}
 
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def get_form_kwargs(self):
+        kwargs = super(MailingCreateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         mailing = form.save()
+        mailing.user = self.request.user
         mailing.save()
 
         TaskManager.create_task(
@@ -167,9 +218,13 @@ class MailingCreateView(CreateView):
         return super().form_valid(form)
 
 
-class MailingUpdateView(UpdateView):
+class MailingUpdateView(UserPassesTestMixin, UpdateView):
     model = Mailing
     form_class = MailingFormUpdate
+    extra_context = {'title': 'Изменение рассылки'}
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
 
     def form_valid(self, form):
         mailing = form.save()
@@ -182,31 +237,38 @@ class MailingUpdateView(UpdateView):
 
 
 def stop_mailing(request, pk):
-    if request.method == 'POST':
-        mailing = Mailing.objects.get(pk=pk)
-        mailing.status = 'f'
-        mailing.save()
+    user = Mailing.objects.get(pk=pk).user
+    if user == request.user:
+        if request.method == 'POST':
+            mailing = Mailing.objects.get(pk=pk)
+            mailing.status = 'f'
+            mailing.save()
 
-    return redirect(reverse('mailing:mailing_list'))
+        return redirect(reverse('mailing:mailing_list'))
+    raise PermissionDenied()
 
 
 def restore_mailing(request, pk):
-    if request.method == 'POST':
-        mailing = Mailing.objects.get(pk=pk)
-        mailing.status = 's'
-        mailing.save()
+    user = Mailing.objects.get(pk=pk).user
+    if user == request.user:
+        if request.method == 'POST':
+            mailing = Mailing.objects.get(pk=pk)
+            mailing.status = 's'
+            mailing.save()
 
-    return redirect(reverse('mailing:mailing_list'))
+        return redirect(reverse('mailing:mailing_list'))
+    raise PermissionDenied()
 
 
+# здесь доступ к чужим отчетам закрыт в queryset
 class LogListView(ListView):
     model = MailingAttempt
     paginate_by = 10
+    extra_context = {'title': 'Отчеты по рассылкам'}
 
     def get_queryset(self):
         mailing_pk = self.request.GET.get('mailing')
+        qs = MailingAttempt.objects.filter(mailing__user=self.request.user)
         if mailing_pk:
-            qs = MailingAttempt.objects.filter(mailing=mailing_pk)
-        else:
-            qs = MailingAttempt.objects.all()
+            qs = qs.filter(mailing=mailing_pk)
         return qs

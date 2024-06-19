@@ -5,8 +5,8 @@ from mailing.models import Mailing, MailingAttempt, MailingMessage, Client
 
 @admin.register(Mailing)
 class MailingAdmin(admin.ModelAdmin):
-    list_display = ['id', 'created_at', 'name', 'start_time', 'finish_time', 'frequency', 'status', 'message', 'clients_list']
-    fields = ['name', 'start_time', 'finish_time', 'frequency', 'message', 'clients']
+    list_display = ['id', 'user', 'created_at', 'name', 'start_time', 'finish_time', 'frequency', 'status', 'message', 'clients_list']
+    fields = ['name', 'start_time', 'finish_time', 'frequency', 'message', 'clients', 'user']
 
     def clients_list(self, obj):
         result = []

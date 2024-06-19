@@ -1,16 +1,14 @@
-{% extends 'mailing/base.html' %}
+{% extends 'users/base_users.html' %}
 {% load crispy_forms_tags %}
-
 {% block title %}{{title}}{% endblock %}
-
-{% block content %}
+{% block userscontent %}
 <form method="post">
     <div class="container ms-5 mt-5">
         {% csrf_token %}
-        <h2>Удалить клиента {{ client.last_name }} {{ client.first_name }}?</h2>
+        <h4>Ты точно хочешь удалить свой аккаунт {{ user.email }}?</h4>
         <div class="col mt-5">
         <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-        <a href="{% url 'mailing:client_detail' client.pk %}" class="btn btn-primary btn-sm">Назад</a>
+        <a href="{% url 'users:user_update' %}" class="btn btn-primary btn-sm">Назад</a>
         </div>
     </div>
 </form>

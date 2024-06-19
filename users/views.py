@@ -2,19 +2,20 @@ import os
 import secrets
 
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, FormView
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
 
-from users.forms import UserRegisterForm, PasswordResetForm
+from users.forms import UserRegisterForm, UserUpdateForm
 from users.models import User
 
 
 class UserCreateView(CreateView):
     model = User
     form_class = UserRegisterForm
-    success_url = reverse_lazy('users:mail_sent')
+    success_url = reverse_lazy('users:email_sent')
     template_name = 'users/user_form.html'
+    extra_context = {'title': 'Регистрация'}
 
     def form_valid(self, form):
         user = form.save()
@@ -28,7 +29,7 @@ class UserCreateView(CreateView):
 
         send_mail(
             subject='SFMailing подтверждение регистрации',
-            message=f'Привет, {user.email}\n\n!'
+            message=f'Привет, {user.email}!\n\n'
                     f'Для активации перейди по ссылке: {url}\n\n'
                     f'Команда SFMailing',
             from_email=os.getenv('SMTP_USER'),
@@ -48,31 +49,22 @@ def email_verification(request, token):
     return render(request, 'users/user_activated.html')
 
 
-class PasswordResetView(FormView):
-    form_class = PasswordResetForm
-    template_name = 'users/password_reset.html'
-    success_url = reverse_lazy('users:password_reset_done')
+class UserUpdateView(UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = 'users/user_update.html'
+    success_url = reverse_lazy('mailing:index')
+    extra_context = {'title': 'Изменение данных'}
 
-    def form_valid(self, form):
-        email = form.cleaned_data.get('email')
+    def get_object(self, queryset=None):
+        return User.objects.get(pk=self.request.user.pk)
 
-        url = reverse('users:password_reset')
-        # не хрестоматийный способ, но пока пусть так
-        url += secrets.token_urlsafe(32)
 
-        try:
-            user = get_object_or_404(User, email=email)
-        except:
-            return redirect(reverse('users:reset_password'))
-        else:
-            send_mail(
-                subject='Запрос на сброс пароля',
-                message=f'Привет, {user.email}!\n\n'
-                        f'Для сброса пароля пройди по ссылке:\n'
-                        f'{url}\n\n'
-                        f'SF Mailing',
-                from_email=os.getenv('SMTP_USER'),
-                recipient_list=[user.email]
-            )
-            return super().form_valid(form)
+class UserDeleteView(DeleteView):
+    model = User
+    success_url = '/'
+    template_name = 'users/user_confirm_delete.html'
+    extra_context = {'title': 'Удаление аккаунта'}
 
+    def get_object(self, queryset=None):
+        return User.objects.get(pk=self.request.user.pk)

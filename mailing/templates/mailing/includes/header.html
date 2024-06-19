@@ -22,7 +22,7 @@
                 </div>
             </form>
             <div class="row text-end">
-                <div class="col"><span class="align-middle">{{ user.email }}</span></div>
+                <div class="col"><a href="{% url 'users:user_update' %}" class="align-middle">{{ user.email }}</a></div>
                 <div class="col">
                     <form method="post" action="{% url 'users:logout' %}">
                         {% csrf_token %}

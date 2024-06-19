@@ -1,4 +1,5 @@
 {% extends 'users/base_users.html' %}
+{% block title %}{{title}}{% endblock %}
 {% block userscontent %}
 <h2>Ты активирован!</h2>
 <a href="{% url 'mailing:index' %}">На главную</a>
