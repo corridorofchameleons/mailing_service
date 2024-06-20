@@ -1,0 +1,58 @@
+{% extends 'users/base_users.html' %}
+{% block title %}{{title}}{% endblock %}
+{% block userscontent %}
+
+<table class="table" style="width: 100%">
+    <thead class="table-dark">
+    <tr>
+        <th scope="col">Email</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in user_list %}
+    <tr>
+        <td>{{ user.email }}</td>
+        {% if user.is_active %}
+        <td>
+            <form method="post" action="{% url 'users:deactivate_user' user.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link link-danger">Деактивировать</button>
+            </form>
+        </td>
+        {% else %}
+        <td>
+            <form method="post" action="{% url 'users:activate_user' user.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link link-success">Активировать</button>
+            </form>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center mt-3">
+        {% if page_obj.has_previous %}
+        <a class="page-link" href="{% url 'users:user_list' %}?page={{ page_obj.previous_page_number }}"
+           aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+        {% for page in page_obj.paginator.page_range %}
+        <li class="page-item"><a class="page-link" href="{% url 'users:user_list' %}?page={{ page }}">{{ page }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a class="page-link" href="{% url 'users:user_list' %}?page={{ page_obj.next_page_number }}"
+           aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

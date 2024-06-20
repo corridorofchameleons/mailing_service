@@ -40,6 +40,7 @@ class Mailing(models.Model):
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default='d', verbose_name='Периодичность')
     status = models.CharField(max_length=1, choices=STATUS, default='c', verbose_name='Статус')
     created_at = models.DateField(auto_now=True, verbose_name='Дата создания')
+    stopped_by_manager = models.BooleanField(default=False, verbose_name='Отключена менеджером')
 
     # для возможности повторного использования сообщения
     message = models.ForeignKey('mailing.MailingMessage', on_delete=models.PROTECT, verbose_name='Сообщение',
@@ -56,6 +57,10 @@ class Mailing(models.Model):
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
         ordering = ['-start_time']
+
+        permissions = [
+            ('can_stop_mailing', 'can stop mailing')
+        ]
 
 
 class MailingMessage(models.Model):

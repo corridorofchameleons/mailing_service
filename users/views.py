@@ -1,10 +1,14 @@
 import os
 import secrets
 
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView, ListView
 
 from users.forms import UserRegisterForm, UserUpdateForm
 from users.models import User
@@ -68,3 +72,38 @@ class UserDeleteView(DeleteView):
 
     def get_object(self, queryset=None):
         return User.objects.get(pk=self.request.user.pk)
+
+
+class UserListView(PermissionRequiredMixin, ListView):
+    model = User
+    template_name = 'users/user_list.html'
+    extra_context = {'title': 'Пользователи'}
+    paginate_by = 20
+    permission_required = ('users.view_user', 'users.can_deactivate_user')
+    raise_exception = True
+
+    q = ~Q(groups__name__in=['manager']) | Q(is_superuser=False)
+    queryset = User.objects.filter(q)
+
+
+@permission_required(('users.view_user', 'users.can_deactivate_user'))
+def deactivate_user(request, pk):
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=pk)
+        user.is_active = False
+        user.save()
+
+        return redirect(reverse('users:user_list'))
+    raise PermissionDenied()
+
+
+@permission_required(('users.view_user', 'users.can_deactivate_user'))
+def activate_user(request, pk):
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=pk)
+        user.is_active = True
+        user.save()
+
+        return redirect(reverse('users:user_list'))
+    raise PermissionDenied()
+
