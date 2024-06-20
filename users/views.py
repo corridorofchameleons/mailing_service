@@ -86,7 +86,7 @@ class UserListView(PermissionRequiredMixin, ListView):
     queryset = User.objects.filter(q)
 
 
-@permission_required(('users.view_user', 'users.can_deactivate_user'))
+@permission_required('users.can_deactivate_user')
 def deactivate_user(request, pk):
     if request.method == 'POST':
         user = get_object_or_404(User, pk=pk)
@@ -97,7 +97,7 @@ def deactivate_user(request, pk):
     raise PermissionDenied()
 
 
-@permission_required(('users.view_user', 'users.can_deactivate_user'))
+@permission_required('users.can_deactivate_user')
 def activate_user(request, pk):
     if request.method == 'POST':
         user = get_object_or_404(User, pk=pk)

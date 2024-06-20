@@ -1,5 +1,5 @@
 {% extends 'mailing/base.html' %}
-
+{% load users.my_tags %}
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
@@ -7,21 +7,44 @@
     <div class="card" style="width: 800px;">
         <div class="card-body" style="padding-bottom: 25px">
             <h3 class="card-title ms-2">{{ mailing.name }}</h3>
+            {% if user|is_manager and not mailing.stopped_by_manager %}
             <div class="row mt-5 ms-2">
+                <form action="{% url 'mailing:mailing_terminate' mailing.pk %}" method="post" class="p-0">
+                    {% csrf_token %}
+                    <button class="col-2 btn btn-danger btn-sm mt-1 mb-1" type="submit">Завершить</button>
+                </form>
+
+                <a href="{{ prev_url }}" class="col-2 btn btn-primary btn-sm">Назад</a>
+            </div>
+            {% elif user|is_manager and mailing.stopped_by_manager %}
+            <div class="row mt-5 ms-2">
+                <p>Рассылка остановлена</p>
+
+                <a href="{{ prev_url }}" class="col-2 btn btn-primary btn-sm">Назад</a>
+            </div>
+            {% else %}
+            <div class="row mt-5 ms-2">
+                {% if not mailing.stopped_by_manager %}
                 <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="col-2 btn btn-warning btn-sm">Изменить</a>
+                {% endif %}
                 {% if mailing.status != 'f' %}
                 <form action="{% url 'mailing:mailing_stop' mailing.pk %}" method="post" class="p-0">
                     {% csrf_token %}
                     <button class="col-2 btn btn-danger btn-sm mt-1 mb-1" type="submit">Завершить</button>
                 </form>
                 {% else %}
-                <form action="{% url 'mailing:mailing_restore' mailing.pk %}" method="post" class="p-0">
-                    {% csrf_token %}
-                    <button class="col-2 btn btn-danger btn-sm mt-1 mb-1" type="submit">Возобновить</button>
-                </form>
+                    {% if not mailing.stopped_by_manager %}
+                    <form action="{% url 'mailing:mailing_restore' mailing.pk %}" method="post" class="p-0">
+                        {% csrf_token %}
+                        <button class="col-2 btn btn-success btn-sm mt-1 mb-1" type="submit">Возобновить</button>
+                    </form>
+                    {% else %}
+                    <p class="mt-3">Рассылка остановлена</p>
+                    {% endif %}
                 {% endif %}
                 <a href="{{ prev_url }}" class="col-2 btn btn-primary btn-sm">Назад</a>
             </div>
+            {% endif %}
             <table class="table mt-4" style="width: 100%">
                 <tbody>
                 <tr>
