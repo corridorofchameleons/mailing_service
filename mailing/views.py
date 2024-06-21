@@ -231,6 +231,7 @@ class MailingCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView)
         mailing.user = self.request.user
         mailing.save()
 
+        # Создает скрипт для crontab
         TaskManager.create_task(
             pk=mailing.pk,
             start=mailing.start_time,
@@ -265,6 +266,9 @@ class MailingUpdateView(UserPassesTestMixin, UpdateView):
 
 
 def stop_mailing(request, pk):
+    '''
+    Останавливает рассылку по команде пользователя.
+    '''
     if request.method == 'POST':
         user = Mailing.objects.get(pk=pk).user
         if user == request.user:
@@ -277,6 +281,9 @@ def stop_mailing(request, pk):
 
 
 def restore_mailing(request, pk):
+    '''
+    Возобновляет рассылку по команде пользователя.
+    '''
     if request.method == 'POST':
         user = Mailing.objects.get(pk=pk).user
         if user == request.user:
@@ -290,6 +297,10 @@ def restore_mailing(request, pk):
 
 @permission_required('mailing.can_stop_mailing')
 def terminate_mailing(request, pk):
+    '''
+    Останавливает рассылку по команде менеджера.
+    Пользователь возобновить уже не сможет.
+    '''
     if request.method == 'POST':
         mailing = Mailing.objects.get(pk=pk)
         mailing.status = 'f'

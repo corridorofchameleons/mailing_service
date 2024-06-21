@@ -106,8 +106,11 @@ main()
         '''
         Создает команду cron
         '''
+        # путь к интерпретатору
         interpreter = sys.executable
+        # путь к скрипту
         script = TaskManager.__set_filename(pk)
+
         cron_command = ' '.join([interpreter, script])
 
         minute = start.minute
