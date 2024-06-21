@@ -16,6 +16,9 @@ from mailing.models import MailingMessage, Client, Mailing, MailingAttempt
 from mailing.utils.task_manager import TaskManager
 
 
+manager_groups = ['manager', 'content manager']
+
+
 class IndexView(TemplateView):
     template_name = 'mailing/index.html'
 
@@ -34,12 +37,14 @@ class IndexView(TemplateView):
         return context
 
 
-class MessageListView(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+class MessageListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = MailingMessage
     extra_context = {'title': 'Сообщения'}
     paginate_by = 10
-    permission_required = 'mailing.view_mailingmessage'
     raise_exception = True
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def get_queryset(self):
         user = self.request.user
@@ -68,12 +73,14 @@ class MessageDetailView(UserPassesTestMixin, DetailView):
         return context
 
 
-class MessageCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+class MessageCreateView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = MailingMessage
     form_class = MessageForm
     extra_context = {'title': 'Создание сообщения'}
     success_url = reverse_lazy('mailing:message_list')
-    permission_required = 'mailing.add_mailingmessage'
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def form_valid(self, form):
         message = form.save()
@@ -103,12 +110,14 @@ class MessageDeleteView(UserPassesTestMixin, DeleteView):
         return self.request.user == self.get_object().user
 
 
-class ClientListView(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+class ClientListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Client
     extra_context = {'title': 'Клиенты'}
     paginate_by = 10
-    permission_required = 'mailing.view_client'
     raise_exception = True
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def get_queryset(self):
         user = self.request.user
@@ -132,12 +141,14 @@ class ClientDetailView(UserPassesTestMixin, DetailView):
         return context
 
 
-class ClientCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+class ClientCreateView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     extra_context = {'title': 'Создание клиента'}
     success_url = reverse_lazy('mailing:client_list')
-    permission_required = 'mailing.add_client'
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def form_valid(self, form):
         client = form.save()
@@ -167,10 +178,9 @@ class ClientDeleteView(UserPassesTestMixin, DeleteView):
         return self.request.user == self.get_object().user
 
 
-class MailingListView(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     paginate_by = 10
-    permission_required = 'mailing.view_mailing'
 
     def get_queryset(self):
         search = self.request.GET.get('search', '')
@@ -208,18 +218,22 @@ def mailing_detail(request, pk):
     raise PermissionDenied()
 
 
-class MailingPreCreateView(PermissionRequiredMixin, LoginRequiredMixin, TemplateView):
+class MailingPreCreateView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
     template_name = 'mailing/mailing_pre_create.html'
     extra_context = {'title': 'Создание рассылки'}
-    permission_required = 'mailing.add_mailing'
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
 
 class MailingCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingFormCreate
     extra_context = {'message_form': MessageForm, 'title': 'Создание рассылки'}
-    permission_required = 'mailing.add_mailing'
     success_url = reverse_lazy('mailing:mailing_list')
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def get_form_kwargs(self):
         kwargs = super(MailingCreateView, self).get_form_kwargs()
@@ -311,11 +325,13 @@ def terminate_mailing(request, pk):
     raise Http404
 
 
-class LogListView(PermissionRequiredMixin, ListView):
+class LogListView(UserPassesTestMixin, ListView):
     model = MailingAttempt
     paginate_by = 10
     extra_context = {'title': 'Отчеты по рассылкам'}
-    permission_required = 'mailing.view_mailingattempt'
+
+    def test_func(self):
+        return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
     def get_queryset(self):
         mailing_pk = self.request.GET.get('mailing')
