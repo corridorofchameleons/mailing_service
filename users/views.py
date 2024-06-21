@@ -82,8 +82,9 @@ class UserListView(PermissionRequiredMixin, ListView):
     permission_required = ('users.view_user', 'users.can_deactivate_user')
     raise_exception = True
 
-    q = ~Q(groups__name__in=['manager']) | Q(is_superuser=False)
-    queryset = User.objects.filter(q)
+    def get_queryset(self):
+        q = ~Q(groups__name__in=['manager']) & Q(is_superuser=False)
+        return User.objects.filter(q)
 
 
 @permission_required('users.can_deactivate_user')
