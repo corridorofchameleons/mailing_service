@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timezone, timedelta
 
 from django.contrib.auth.decorators import user_passes_test, permission_required
@@ -9,13 +10,28 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView, TemplateView
 
+from blog.models import Article
 from mailing.forms import MessageForm, ClientForm, MailingFormCreate, MailingFormUpdate
 from mailing.models import MailingMessage, Client, Mailing, MailingAttempt
 from mailing.utils.task_manager import TaskManager
 
 
-def index(request):
-    return render(request, 'mailing/index.html', {'title': 'Главная'})
+class IndexView(TemplateView):
+    template_name = 'mailing/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 3 случайные статьи
+        context['articles'] = random.sample(list(Article.objects.all()), 3)
+        # рассылок всего
+        context['mailings_num'] = Mailing.objects.all().count()
+        # рассылок не в статусе 'завершена'
+        context['mailings_active_num'] = Mailing.objects.filter(status__in=['c', 's']).count()
+        # количество уникальных клиентов (почт жертв рассылкок)
+        context['clients_num'] = Client.objects.distinct('email').count()
+
+        context['title'] = 'Главная'
+        return context
 
 
 class MessageListView(PermissionRequiredMixin, LoginRequiredMixin, ListView):
@@ -284,7 +300,6 @@ def terminate_mailing(request, pk):
     raise Http404
 
 
-# здесь доступ к чужим отчетам закрыт в queryset
 class LogListView(PermissionRequiredMixin, ListView):
     model = MailingAttempt
     paginate_by = 10

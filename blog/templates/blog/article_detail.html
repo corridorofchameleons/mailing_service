@@ -1,0 +1,14 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="container" style="margin: auto">
+  <div class="card mt-5 ms-5" style="width: 80%">
+    <img src="/media/{{ article.img }}" alt="{{ article.img }}" class="card-img-top">
+    <div class="card-body">
+      <h5 class="card-title">{{ article.title }}</h5>
+      <p class="card-text">{{ article.content }}</p>
+      <a href="{% url 'mailing:index' %}" class="btn btn-primary">На главную</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

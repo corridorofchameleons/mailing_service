@@ -3,11 +3,31 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-{% if not user.is_authenticated %}
 <div class="container ms-5 mt-5">
-    <p>Добро пожаловать на ручной генератор спама!</p>
-    <p>Для работы с сервисом необходимо <a href="{% url 'users:user_create' %}">зарегистрироваться</a>.</p>
-    <p>Уже зарегистрированы? <a href="{% url 'users:login' %}">Войти</a>.</p>
+    {% if not user.is_authenticated %}
+    <div>
+        <p>Добро пожаловать на ручной генератор спама!</p>
+        <p>Для работы с сервисом необходимо <a href="{% url 'users:user_create' %}">зарегистрироваться</a>.</p>
+        <p>Уже зарегистрированы? <a href="{% url 'users:login' %}">Войти</a>.</p>
+    </div>
+    {% endif %}
+    <div>
+        <p class="fs-5">У нас уже <strong>{{ mailings_num }}</strong> рассылок, из которых <strong>{{ mailings_active_num }}</strong> активных!</p>
+        <p class="fs-5"><strong>{{ clients_num }}</strong> клиентов регулярно получают <s>полезную</s> информацию!</p>
+    </div>
 </div>
-{% endif %}
+<div class="container ms-5 mt-5">
+    <h5>Статьи</h5>
+    {% for article in articles %}
+    <div class="card" style="width: 18rem;">
+        <img src="/media/{{ article.img }}" class="card-img-top">
+        <div class="card-body">
+            <h5 class="card-title"><a href="{% url 'blog:article_detail' article.pk %}">{{ article.title }}</a></h5>
+            <p class="card-text">{{ article.content|truncatechars:80 }}</p>
+            <p class="card-text fw-light">Опубликована: {{ article.published_at|date:'Y-m-d H:i' }}</p>
+            <p class="card-text fw-light">Просмотров: {{ article.views }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

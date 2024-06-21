@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from mailing.apps import MailingConfig
-from mailing.views import index, MessageCreateView, MessageListView, MessageUpdateView, MessageDetailView, \
+from mailing.views import IndexView, MessageCreateView, MessageListView, MessageUpdateView, MessageDetailView, \
     MessageDeleteView, ClientCreateView, ClientUpdateView, ClientDeleteView, ClientDetailView, ClientListView, \
     MailingListView, MailingCreateView, MailingPreCreateView, MailingUpdateView, stop_mailing, \
     restore_mailing, LogListView, mailing_detail, terminate_mailing
@@ -10,7 +10,7 @@ from mailing.views import index, MessageCreateView, MessageListView, MessageUpda
 app_name = MailingConfig.name
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', IndexView.as_view(), name='index'),
 
     path('messages/create/', MessageCreateView.as_view(), name='message_create'),
     path('messages/update/<int:pk>', MessageUpdateView.as_view(), name='message_update'),
@@ -35,4 +35,7 @@ urlpatterns = [
 
     path('logs/', LogListView.as_view(), name='attempt_list'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
