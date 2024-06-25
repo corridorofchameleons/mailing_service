@@ -187,7 +187,7 @@ class MailingListView(LoginRequiredMixin, ListView):
         user = self.request.user
         if user.has_perm('mailing.view_mailing'):
             qs = Mailing.objects.all()
-        else:
+        elif search:
             qs = Mailing.objects.filter(name__icontains=search, user=user)
         return qs
 
@@ -223,6 +223,7 @@ def mailing_detail(request, pk):
             'page': page,
             'clients': page.object_list,
             'prev_url': prev_url,
+
             'mailing_stopped': mailing_stopped,
             'mailing_started': mailing_started,
             'mailing_paused': mailing_paused,
