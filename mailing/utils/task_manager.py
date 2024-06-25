@@ -1,15 +1,7 @@
-
 import os
 import pathlib
 import sys
 from crontab import CronTab
-
-sys.path.append('/home/speedfreak/PycharmProjects/Mailing')
-
-# Эти импорты удалять нельзя
-from django.core.mail import send_mail
-from mailing.models import Mailing, MailingAttempt
-from datetime import datetime, timezone, timedelta
 
 
 class TaskManager:
@@ -32,23 +24,22 @@ class TaskManager:
         Создает текст скрипта
         '''
         text = f'''
-import os
-import smtplib
-import sys
-from datetime import datetime, timezone, timedelta
-
-sys.path.append('/home/speedfreak/PycharmProjects/Mailing')
-
-import django
-from dotenv import load_dotenv
-
-load_dotenv()
-django.setup()
-
-from django.core.mail import send_mail
-from mailing.models import Mailing, MailingAttempt
-
 def main():
+    import os
+    import smtplib
+    import sys
+    from datetime import datetime, timezone, timedelta
+    
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    sys.path.append(os.getenv('PROJECT_PATH'))
+    
+    import django
+    django.setup()
+    
+    from django.core.mail import send_mail
+    from mailing.models import Mailing, MailingAttempt
         
     mailing = Mailing.objects.select_related('message').prefetch_related('clients').get(pk={pk})
     emails = [client.email for client in mailing.clients.all()]
@@ -58,7 +49,7 @@ def main():
 
     status = mailing.status
 
-    if start.date() <= datetime.now().date() <= end and status != 'f' and not mailing.stopped_by_manager:
+    if start.date() <= datetime.now().date() <= end and status not in ('p', 'f', 't'):
 
         mailing.status = 's'
         mailing.save()

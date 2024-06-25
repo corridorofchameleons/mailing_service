@@ -210,10 +210,23 @@ def mailing_detail(request, pk):
         # если нет параметра в url, то выводим 1 страницу
         page_num = request.GET.get('page', 1)
         page = paginator.get_page(page_num)
-        context = {'title': 'Просмотр рассылки', 'mailing': mailing, 'page': page, 'clients': page.object_list}
 
         prev_url = request.META.get('HTTP_REFERER')
-        context['prev_url'] = prev_url
+
+        mailing_stopped = mailing.status in ('f', 't')
+        mailing_paused = mailing.status == 'p'
+        mailing_started = mailing.status in ('c', 's')
+
+        context = {
+            'title': 'Просмотр рассылки',
+            'mailing': mailing,
+            'page': page,
+            'clients': page.object_list,
+            'prev_url': prev_url,
+            'mailing_stopped': mailing_stopped,
+            'mailing_started': mailing_started,
+            'mailing_paused': mailing_paused,
+        }
         return render(request, 'mailing/mailing_detail.html', context)
     raise PermissionDenied()
 
@@ -226,7 +239,7 @@ class MailingPreCreateView(UserPassesTestMixin, LoginRequiredMixin, TemplateView
         return not self.request.user.groups.filter(name__in=manager_groups).exists()
 
 
-class MailingCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+class MailingCreateView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingFormCreate
     extra_context = {'message_form': MessageForm, 'title': 'Создание рассылки'}
@@ -266,6 +279,11 @@ class MailingUpdateView(UserPassesTestMixin, UpdateView):
     form_class = MailingFormUpdate
     extra_context = {'title': 'Изменение рассылки'}
 
+    def get_form_kwargs(self):
+        kwargs = super(MailingUpdateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def test_func(self):
         return self.request.user == self.get_object().user
 
@@ -282,12 +300,13 @@ class MailingUpdateView(UserPassesTestMixin, UpdateView):
 def stop_mailing(request, pk):
     '''
     Останавливает рассылку по команде пользователя.
+    работает только через POST
     '''
     if request.method == 'POST':
         user = Mailing.objects.get(pk=pk).user
         if user == request.user:
             mailing = Mailing.objects.get(pk=pk)
-            mailing.status = 'f'
+            mailing.status = 'p'
             mailing.save()
             return redirect(reverse('mailing:mailing_detail', kwargs={'pk': mailing.pk}))
         raise PermissionDenied()
@@ -297,6 +316,7 @@ def stop_mailing(request, pk):
 def restore_mailing(request, pk):
     '''
     Возобновляет рассылку по команде пользователя.
+    работает только через POST
     '''
     if request.method == 'POST':
         user = Mailing.objects.get(pk=pk).user
@@ -314,10 +334,11 @@ def terminate_mailing(request, pk):
     '''
     Останавливает рассылку по команде менеджера.
     Пользователь возобновить уже не сможет.
+    работает только через POST
     '''
     if request.method == 'POST':
         mailing = Mailing.objects.get(pk=pk)
-        mailing.status = 'f'
+        mailing.status = 't'
         mailing.stopped_by_manager = True
         mailing.save()
 
