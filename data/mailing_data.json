@@ -1,0 +1,105 @@
+[
+  {
+    "model": "mailing.client",
+    "pk": 7,
+    "fields": {
+      "email": "gdramze@gmail.com",
+      "first_name": "Костя",
+      "last_name": "Егоров",
+      "patronym": null,
+      "comment": "",
+      "user": 3
+    }
+  },
+  {
+    "model": "mailing.client",
+    "pk": 8,
+    "fields": {
+      "email": "constantgore@yandex.ru",
+      "first_name": "Егор",
+      "last_name": "Костин",
+      "patronym": null,
+      "comment": "",
+      "user": null
+    }
+  },
+  {
+    "model": "mailing.client",
+    "pk": 9,
+    "fields": {
+      "email": "jifu2016@gmail.com",
+      "first_name": "Юля",
+      "last_name": "Егорова",
+      "patronym": null,
+      "comment": "",
+      "user": 3
+    }
+  },
+  {
+    "model": "mailing.mailing",
+    "pk": 95,
+    "fields": {
+      "name": "Москвич",
+      "start_time": "2024-06-28T09:00:00Z",
+      "finish_time": "2024-07-28",
+      "frequency": "w",
+      "status": "c",
+      "created_at": "2024-06-25",
+      "message": 11,
+      "user": null,
+      "clients": [
+        8,
+        9,
+        7
+      ]
+    }
+  },
+  {
+    "model": "mailing.mailing",
+    "pk": 96,
+    "fields": {
+      "name": "Пятерочка",
+      "start_time": "2024-06-27T15:00:00Z",
+      "finish_time": "2024-07-08",
+      "frequency": "d",
+      "status": "c",
+      "created_at": "2024-06-25",
+      "message": 12,
+      "user": null,
+      "clients": [
+        8,
+        7
+      ]
+    }
+  },
+  {
+    "model": "mailing.mailingmessage",
+    "pk": 10,
+    "fields": {
+      "subject": "Новая акция Herbalife",
+      "text": "Дорогой друг!\r\n\r\nКупи соевый изолят по цене кокаина!\r\nХочешь похудеть - спроси меня, как у меня получается это продавать.",
+      "created_at": "2024-06-25",
+      "user": 3
+    }
+  },
+  {
+    "model": "mailing.mailingmessage",
+    "pk": 11,
+    "fields": {
+      "subject": "Автомобили Москвич в наличии!",
+      "text": "Ты уже устал ездить на Ладе? \r\nА на электричке страшно?\r\n\r\nЛегенда вернулась!",
+      "created_at": "2024-06-25",
+      "user": 3
+    }
+  },
+  {
+    "model": "mailing.mailingmessage",
+    "pk": 12,
+    "fields": {
+      "subject": "Работай в Пятерочке!",
+      "text": "25 лет мы работаем, помогая семьям чувствовать себя счастливее, создавая возможность заботиться о себе и своих близких. «Пятёрочка» — это не просто работа, а место, где вас:\r\n\r\nЦенят\r\n\r\nЗдесь в центре внимания люди и их потребности. Мы доверяем друг другу и принимаем различия\r\n\r\nВыручают\r\n\r\nЗдесь можно выбрать удобный график, влиять на собственный доход и получать дополнительные бонусы, премии, скидки\r\n\r\nРазвивают\r\n\r\nЗдесь строят карьеру в масштабе Х5, быстро становятся руководителями, и при желании, собственниками бизнеса\r\n\r\nПоддерживают\r\n\r\nЗдесь вы можете быть уверены в завтрашнем дне и создавать историю вместе с командой",
+      "created_at": "2024-06-19",
+      "user": 3
+    }
+  }
+]
