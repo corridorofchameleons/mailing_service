@@ -1,8 +1,7 @@
-import random
 from datetime import datetime, timezone, timedelta
 
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.http import Http404
@@ -187,7 +186,7 @@ class MailingListView(LoginRequiredMixin, ListView):
         user = self.request.user
         if user.has_perm('mailing.view_mailing'):
             qs = Mailing.objects.all()
-        elif search:
+        else:
             qs = Mailing.objects.filter(name__icontains=search, user=user)
         return qs
 
