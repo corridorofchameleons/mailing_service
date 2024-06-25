@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
 from django.utils import timezone
 
 from mailing.models import MailingMessage, Client, Mailing

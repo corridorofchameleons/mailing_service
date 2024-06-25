@@ -58,7 +58,7 @@ def main():
 
     status = mailing.status
 
-    if start.date() <= datetime.now().date() <= end and status != 'f':
+    if start.date() <= datetime.now().date() <= end and status != 'f' and not mailing.stopped_by_manager:
 
         mailing.status = 's'
         mailing.save()

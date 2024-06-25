@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+from django.views.decorators.cache import cache_page
+
 from mailing.apps import MailingConfig
 from mailing.views import IndexView, MessageCreateView, MessageListView, MessageUpdateView, MessageDetailView, \
     MessageDeleteView, ClientCreateView, ClientUpdateView, ClientDeleteView, ClientDetailView, ClientListView, \
@@ -10,7 +12,7 @@ from mailing.views import IndexView, MessageCreateView, MessageListView, Message
 app_name = MailingConfig.name
 
 urlpatterns = [
-    path('', IndexView.as_view(), name='index'),
+    path('', cache_page(30)(IndexView.as_view()), name='index'),
 
     path('messages/create/', MessageCreateView.as_view(), name='message_create'),
     path('messages/update/<int:pk>', MessageUpdateView.as_view(), name='message_update'),

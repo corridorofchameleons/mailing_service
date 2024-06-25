@@ -1,7 +1,7 @@
 import random
 from datetime import datetime, timezone, timedelta
 
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
@@ -10,9 +10,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView, TemplateView
 
-from blog.models import Article
 from mailing.forms import MessageForm, ClientForm, MailingFormCreate, MailingFormUpdate
 from mailing.models import MailingMessage, Client, Mailing, MailingAttempt
+from mailing.utils.cache_utils import get_random_three
 from mailing.utils.task_manager import TaskManager
 
 
@@ -25,7 +25,7 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # 3 случайные статьи
-        context['articles'] = random.sample(list(Article.objects.all()), 3)
+        context['articles'] = get_random_three()
         # рассылок всего
         context['mailings_num'] = Mailing.objects.all().count()
         # рассылок не в статусе 'завершена'
